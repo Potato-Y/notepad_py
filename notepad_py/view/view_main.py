@@ -77,15 +77,18 @@ class ViewMain(QMainWindow):
         print('open click')
 
         # QFileDialog로 열을 파일 불러오기
-        fileSelect = QFileDialog.getOpenFileName(
+        file_select = QFileDialog.getOpenFileName(
             self, 'Open File', '', 'text file(*.txt);; All File(*)')
+        
+        if not file_select[0]:
+            return
 
         try:
-            load_text = IOService.open(fileSelect[0])
+            load_text = IOService.open(file_select[0])
             self.text_editor.setText(load_text)
 
             # 불러오기가 정상적으로 완료되면 file path 정보 저장
-            self.file_path = fileSelect[0]
+            self.file_path = file_select[0]
 
         except FileNotFoundError:
             QMessageBox.about(self, 'Error', 'The file cannot be loaded.')
