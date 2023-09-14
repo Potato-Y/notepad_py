@@ -9,3 +9,8 @@ class IOService():
         file.close()
 
         return data
+
+    def save(path: str, data: str):
+        file = open(path, 'w')
+        file.write(data)
+        file.close()
