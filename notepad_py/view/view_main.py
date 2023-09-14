@@ -1,8 +1,12 @@
 import sys
-from PyQt6.QtWidgets import QMainWindow, QTextEdit
+from PyQt6.QtWidgets import QMainWindow, QTextEdit, QFileDialog, QMessageBox
 from PyQt6.QtGui import QAction
 
+from service.io_service import IOService
+
+
 class ViewMain(QMainWindow):
+    file_path = ''
 
     def __init__(self):
         super().__init__()
@@ -43,7 +47,7 @@ class ViewMain(QMainWindow):
         # widget에 text edit 추가
         self.setCentralWidget(self.text_editor)
 
-        self.statusBar().showMessage('0 / 0:0')
+        self.statusBar().showMessage('0 / 0:0')  # statusbar 기본 텍스트 설정
         self.show()
 
     # 저장 버튼 클릭 시 실행
@@ -54,8 +58,23 @@ class ViewMain(QMainWindow):
     def open_onclick(self):
         print('open click')
 
-    def position_changed(self):
-        count = len(self.text_editor.toPlainText()) # 입력한 텍스트 수
-        cursor=self.text_editor.textCursor()
+        # QFileDialog로 열을 파일 불러오기
+        fileSelect = QFileDialog.getOpenFileName(
+            self, 'Open File', '', 'text file(*.txt);; All File(*)')
 
-        self.statusBar().showMessage('{0} / {1}:{2}'.format(count,cursor.blockNumber(),cursor.columnNumber()))
+        try:
+            load_text = IOService.open(fileSelect[0])
+            self.text_editor.setText(load_text)
+
+            # 불러오기가 정상적으로 완료되면 file path 정보 저장
+            self.file_path = fileSelect[0]
+
+        except FileNotFoundError:
+            QMessageBox.about(self, 'Error', 'The file cannot be loaded.')
+
+    def position_changed(self):
+        count = len(self.text_editor.toPlainText())  # 입력한 텍스트 수
+        cursor = self.text_editor.textCursor()
+
+        self.statusBar().showMessage(
+            '{0} / {1}:{2}'.format(count, cursor.blockNumber(), cursor.columnNumber()))
