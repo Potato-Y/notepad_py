@@ -11,6 +11,7 @@ window_name = 'Simple Notepad'
 class ViewMain(QMainWindow):
     file_path = ''
     file_name = 'New'
+    close_lock = False
 
     def __init__(self):
         super().__init__()
@@ -75,6 +76,7 @@ class ViewMain(QMainWindow):
             IOService.save(
                 self.file_path, self.text_editor.toPlainText())
             self.setWindowTitle(window_name+' :: '+self.file_name)
+            self.close_lock = False
 
         except:
             # 저장 중 오류가 발생할 경우 안내창을 띄운다.
@@ -102,6 +104,7 @@ class ViewMain(QMainWindow):
             self.file_path = file_select[0]
             self.file_name = os.path.basename(file_select[0])
             self.setWindowTitle(window_name+' :: '+self.file_name)
+            self.close_lock = False
 
         except FileNotFoundError:
             QMessageBox.about(self, 'Error', 'The file cannot be loaded.')
@@ -109,6 +112,7 @@ class ViewMain(QMainWindow):
     # 텍스트 내용이 바뀔 때 별표 추가
     def text_changed(self):
         self.setWindowTitle(window_name+' :: '+self.file_name+' *')
+        self.close_lock = True
 
     def position_changed(self):
         count = len(self.text_editor.toPlainText())  # 입력한 텍스트 수
@@ -116,3 +120,20 @@ class ViewMain(QMainWindow):
 
         self.statusBar().showMessage(
             '{0} / {1}:{2}'.format(count, cursor.blockNumber(), cursor.columnNumber()))
+
+    def closeEvent(self, event):
+        # 내용이 저장된 경우에 바로 종료한다.
+        if not self.close_lock:
+            return event.accept()
+
+        # 내용이 저장되지 않은 상태에서 종료 시도 시 선택을 요구한다.
+        quit_msg = "Want to exit?"
+        reply = QMessageBox.question(self, 'Message', quit_msg, (QMessageBox.StandardButton.Yes |
+                                     QMessageBox.StandardButton.Save | QMessageBox.StandardButton.Cancel))
+
+        if reply == QMessageBox.StandardButton.Yes:
+            event.accept()
+        elif reply == QMessageBox.StandardButton.Save:
+            self.save_onclick()
+        else:
+            event.ignore()
