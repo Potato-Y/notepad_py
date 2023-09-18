@@ -128,8 +128,8 @@ class ViewMain(QMainWindow):
 
         # 내용이 저장되지 않은 상태에서 종료 시도 시 선택을 요구한다.
         quit_msg = "Want to exit?"
-        reply = QMessageBox.question(self, 'Message', quit_msg, (QMessageBox.StandardButton.Yes |
-                                     QMessageBox.StandardButton.Save | QMessageBox.StandardButton.Cancel))
+        reply = QMessageBox.question(self, 'Message', quit_msg, (QMessageBox.StandardButton.Save |
+                                     QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.Cancel))
 
         if reply == QMessageBox.StandardButton.Yes:
             event.accept()
