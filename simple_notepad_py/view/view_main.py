@@ -69,7 +69,7 @@ class ViewMain(QMainWindow):
                 self.file_name = os.path.basename(file_save_select[0])
             else:
                 # 선택하지 않으면 리턴한다.
-                return
+                return False
 
         try:
             # 파일을 저장한다.
@@ -77,7 +77,7 @@ class ViewMain(QMainWindow):
                 self.file_path, self.text_editor.toPlainText())
             self.setWindowTitle(window_name+' :: '+self.file_name)
             self.close_lock = False
-
+            return True
         except:
             # 저장 중 오류가 발생할 경우 안내창을 띄운다.
             QMessageBox.about(self, 'Error', 'Failed to save file.')
@@ -134,6 +134,7 @@ class ViewMain(QMainWindow):
         if reply == QMessageBox.StandardButton.Yes:
             event.accept()
         elif reply == QMessageBox.StandardButton.Save:
-            self.save_onclick()
+            if self.save_onclick() == False:  # 만약 저장 취소 시 창 유지
+                event.ignore()
         else:
             event.ignore()
